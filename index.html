@@ -3,49 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xanax Lottery</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Activity Dashboard</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-    <div id="app" class="min-h-screen flex flex-col items-center justify-center">
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <header class="text-center mb-4">
-                <h1 class="text-2xl font-bold">Current Xanax in the pot: <span class="text-green-500">{{ potAmount }}</span></h1>
-            </header>
-            <section>
-                <h2 class="text-xl font-semibold mb-3">Activity Log</h2>
-                <ul class="list-disc pl-5">
-                    <li v-for="entry in activityLog" class="mb-2">
-                        {{ entry.playerName }} entered {{ entry.xanaxAmount }} Xanax - Total in pot: {{ entry.totalPot }}
-                    </li>
-                </ul>
-            </section>
-        </div>
-    </div>
+<body>
+    <h2>Activity Logs</h2>
+    <table id="activityTable">
+        <thead>
+            <tr>
+                <th>Log ID</th>
+                <th>Title</th>
+                <th>Timestamp</th>
+                <th>Sender ID</th>
+                <th>Item Details</th>
+                <th>Processed Time</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <h2>Sender Summary</h2>
+    <table id="summaryTable">
+        <thead>
+            <tr>
+                <th>Sender ID</th>
+                <th>Total Items Sent</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
     <script>
-        new Vue({
-            el: '#app',
-            data: {
-                potAmount: 0,
-                activityLog: []
-            },
-            mounted() {
-                this.fetchData();
-            },
-            methods: {
-                fetchData() {
-                    // Mock data for demonstration
-                    this.potAmount = 300;
-                    this.activityLog = [
-                        { playerName: 'Alice', xanaxAmount: 50, totalPot: 300 },
-                        { playerName: 'Bob', xanaxAmount: 100, totalPot: 250 },
-                        { playerName: 'Carol', xanaxAmount: 150, totalPot: 150 }
-                    ];
-                }
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData('http://localhost:7071/api/get-activity-logs', 'activityTable');
+            fetchData('http://localhost:7071/api/get-sender-summary', 'summaryTable');
         });
+
+        function fetchData(apiUrl, tableId) {
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById(tableId);
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    Object.values(row).forEach(text => {
+                        const td = document.createElement('td');
+                        td.textContent = text;
+                        tr.appendChild(td);
+                    });
+                    table.querySelector('tbody').appendChild(tr);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
     </script>
 </body>
 </html>
