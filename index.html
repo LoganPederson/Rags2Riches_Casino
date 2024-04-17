@@ -62,9 +62,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetchData('https://loganpederson.github.io/api/get-activity-logs', 'activityTable');
-            fetchData('https://loganpederson.github.io/api/get-sender-summary', 'summaryTable');
-            fetchData('https://loganpederson.github.io/api/get-user-data', 'userData');
+            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-activity-logs?code=8g7GXboaHWCcwvfnmCZKNvdmTaSCa_P2NKF7XfEs98IzAzFuxWSEKA==', 'activityTable');
+            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-sender-summary?code=7ICKyUeM6tRZCA3VGBpAGz9KGYZbgcZImH46-6_FwPEzAzFuw5sbvA==', 'summaryTable');
+            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-user-data?code=tYfZ1MuAFqK3FXxMI56ED3wBh4ul0jwTGsMsWDlPHixQAzFue15GcA==', 'userData');
         });
 
         async function fetchData(apiUrl, tableId) {
