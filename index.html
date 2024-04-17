@@ -5,17 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity Dashboard</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
         th, td {
-            border: 1px solid black;
+            border: 1px solid #ccc;
             padding: 8px;
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #f4f4f4;
+        }
+        img {
+            width: 50px;
+            height: auto;
+            border-radius: 50%;
+        }
+        .date-cell {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -24,12 +36,12 @@
     <table id="activityTable">
         <thead>
             <tr>
-                <th>Log ID</th>
-                <th>Title</th>
-                <th>Timestamp</th>
-                <th>Sender ID</th>
-                <th>Item Details</th>
-                <th>Processed Time</th>
+                <th>Profile Picture</th>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Item Sent</th>
+                <th>Quantity</th>
+                <th>Message</th>
             </tr>
         </thead>
         <tbody>
@@ -50,26 +62,50 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetchData('http://localhost:7071/api/get-activity-logs', 'activityTable');
-            fetchData('http://localhost:7071/api/get-sender-summary', 'summaryTable');
+            fetchData('https://loganpederson.github.io/api/get-activity-logs', 'activityTable');
+            fetchData('https://loganpederson.github.io/api/get-sender-summary', 'summaryTable');
+            fetchData('https://loganpederson.github.io/api/get-user-data', 'userData');
         });
 
-        function fetchData(apiUrl, tableId) {
-            fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
+        async function fetchData(apiUrl, tableId) {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
                 const table = document.getElementById(tableId);
                 data.forEach(row => {
                     const tr = document.createElement('tr');
-                    Object.values(row).forEach(text => {
-                        const td = document.createElement('td');
-                        td.textContent = text;
-                        tr.appendChild(td);
-                    });
+                    if (tableId === 'activityTable') {
+                        const imgTd = document.createElement('td');
+                        const img = document.createElement('img');
+                        img.src = row.profile_image;  // Make sure your API returns the profile image URL
+                        img.alt = "User Image";
+                        imgTd.appendChild(img);
+                        tr.appendChild(imgTd);
+
+                        addTextCell(tr, row.name); // Name from user data
+                        addTextCell(tr, new Date(row.timestamp * 1000).toLocaleString()); // Formatted date
+                        addTextCell(tr, `Item ID: ${row.item_id}`); // Item sent
+                        addTextCell(tr, row.item_qty); // Quantity
+                        addTextCell(tr, row.message); // Message
+                    } else {
+                        Object.values(row).forEach(text => {
+                            const td = document.createElement('td');
+                            td.textContent = text;
+                            tr.appendChild(td);
+                        });
+                    }
                     table.querySelector('tbody').appendChild(tr);
                 });
-            })
-            .catch(error => console.error('Error fetching data:', error));
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function addTextCell(tr, text) {
+            const td = document.createElement('td');
+            td.textContent = text;
+            tr.appendChild(td);
         }
     </script>
 </body>
