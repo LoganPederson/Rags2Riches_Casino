@@ -61,45 +61,55 @@
     </table>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-activity-logs', 'activityTable');
-            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-sender-summary', 'summaryTable');
-            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-user-data', 'userData');
+        document.addEventListener('DOMContentLoaded', async function() {
+            const [activityLogs, senderSummary, userData] = await Promise.all([
+                fetchData('https://get-torn-api-log.azurewebsites.net/api/get-activity-logs'),
+                fetchData('https://get-torn-api-log.azurewebsites.net/api/get-sender-summary'),
+                fetchData('https://get-torn-api-log.azurewebsites.net/api/get-user-data')
+            ]);
+
+            const userMap = new Map(userData.map(user => [user.player_id, user]));
+
+            populateActivityTable(activityLogs, userMap);
+            populateSummaryTable(senderSummary);
         });
 
-        async function fetchData(apiUrl, tableId) {
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+        async function fetchData(apiUrl) {
+            const response = await fetch(apiUrl);
+            return response.json();
+        }
 
-                const table = document.getElementById(tableId);
-                data.forEach(row => {
-                    const tr = document.createElement('tr');
-                    if (tableId === 'activityTable') {
-                        const imgTd = document.createElement('td');
-                        const img = document.createElement('img');
-                        img.src = row.profile_image;  // Make sure your API returns the profile image URL
-                        img.alt = "User Image";
-                        imgTd.appendChild(img);
-                        tr.appendChild(imgTd);
+        function populateActivityTable(logs, userMap) {
+            const table = document.getElementById('activityTable');
+            logs.forEach(log => {
+                const user = userMap.get(log.sender);
+                const tr = document.createElement('tr');
+                
+                const imgTd = document.createElement('td');
+                const img = document.createElement('img');
+                img.src = user ? user.profile_image : 'default-profile.png'; // Fallback for missing user data
+                img.alt = "User Image";
+                imgTd.appendChild(img);
+                tr.appendChild(imgTd);
 
-                        addTextCell(tr, row.name); // Name from user data
-                        addTextCell(tr, new Date(row.timestamp * 1000).toLocaleString()); // Formatted date
-                        addTextCell(tr, `Item ID: ${row.item_id}`); // Item sent
-                        addTextCell(tr, row.item_qty); // Quantity
-                        addTextCell(tr, row.message); // Message
-                    } else {
-                        Object.values(row).forEach(text => {
-                            const td = document.createElement('td');
-                            td.textContent = text;
-                            tr.appendChild(td);
-                        });
-                    }
-                    table.querySelector('tbody').appendChild(tr);
-                });
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
+                addTextCell(tr, user ? user.name : "Unknown"); // Handle missing user data
+                addTextCell(tr, new Date(log.timestamp * 1000).toLocaleString());
+                addTextCell(tr, `Item ID: ${log.item_id}`);
+                addTextCell(tr, log.item_qty);
+                addTextCell(tr, log.message);
+
+                table.querySelector('tbody').appendChild(tr);
+            });
+        }
+
+        function populateSummaryTable(summary) {
+            const table = document.getElementById('summaryTable');
+            summary.forEach(entry => {
+                const tr = document.createElement('tr');
+                addTextCell(tr, entry.sender);
+                addTextCell(tr, entry.total_items_sent);
+                table.querySelector('tbody').appendChild(tr);
+            });
         }
 
         function addTextCell(tr, text) {
