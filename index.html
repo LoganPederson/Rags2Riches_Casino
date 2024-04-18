@@ -62,9 +62,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-activity-logs?code=woLST9mjcirCEqWa4w7BSg_oCXc6AHiZa8ZgBNGpcSxkAzFuKsbJ-Q==', 'activityTable');
-            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-sender-summary?code=dCDgrX4QJp-k3HP4IDoh_ZzueZMjJvGgZ8KNlJ1trV7aAzFuUX_wOQ==', 'summaryTable');
-            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-user-data?code=1O7NaD9bEiEKReP4us30-fbcqu6BJUod8p9WeL66tO5EAzFuyxzhtA==', 'userData');
+            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-activity-logs', 'activityTable');
+            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-sender-summary', 'summaryTable');
+            fetchData('https://get-torn-api-log.azurewebsites.net/api/get-user-data', 'userData');
         });
 
         async function fetchData(apiUrl, tableId) {
