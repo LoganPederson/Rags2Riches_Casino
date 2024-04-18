@@ -68,10 +68,11 @@
                 fetchData('https://get-torn-api-log.azurewebsites.net/api/get-user-data')
             ]);
 
-            const userMap = new Map(userData.map(user => [user.player_id, user]));
+            const userMap = new Map();
+            userData.forEach(user => userMap.set(user.player_id, user));
 
             populateActivityTable(activityLogs, userMap);
-            populateSummaryTable(senderSummary);
+            populateSummaryTable(senderSummary, userMap);
         });
 
         async function fetchData(apiUrl) {
@@ -87,8 +88,8 @@
                 
                 const imgTd = document.createElement('td');
                 const img = document.createElement('img');
-                img.src = user ? user.profile_image : 'default-profile.png'; // Fallback for missing user data
-                img.alt = "No PFP :/ ";
+                img.src = user ? user.profile_image : 'https://profileimages.torn.com/abeb016e-1fb5-4c83-95c2-13d8cf7ac88e-2025748.png?v=1040063'; // Fallback for missing user data
+                img.alt = "No PFP";
                 imgTd.appendChild(img);
                 tr.appendChild(imgTd);
 
@@ -102,11 +103,13 @@
             });
         }
 
-        function populateSummaryTable(summary) {
+        function populateSummaryTable(summary, userMap) {
             const table = document.getElementById('summaryTable');
             summary.forEach(entry => {
                 const tr = document.createElement('tr');
-                addTextCell(tr, entry.sender);
+                const user = userMap.get(entry.sender);
+                const userNameWithID = user ? `${user.name} [${user.player_id}]` : `Unknown [${entry.sender}]`; // Handle missing user data
+                addTextCell(tr, userNameWithID);
                 addTextCell(tr, entry.total_items_sent);
                 table.querySelector('tbody').appendChild(tr);
             });
